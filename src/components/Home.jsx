@@ -1,0 +1,252 @@
+import React, { useState, useEffect } from 'react';
+
+const Home = ({ product, onOrder }) => {
+  // ১. ডাটা না আসা পর্যন্ত সেফটি চেক
+  if (!product) {
+    return (
+      <div style={{ textAlign: 'center', padding: '100px', fontSize: '20px', color: '#666' }}>
+        প্রোডাক্ট লোড হচ্ছে... একটু অপেক্ষা করুন।
+      </div>
+    );
+  }
+
+  // ২. মিডিয়া লিস্ট সেট করা (WebP সাপোর্ট সহ)
+  const mediaList = product?.images?.length > 0 
+    ? product.images 
+    : ["https://via.placeholder.com/800x600?text=No+Media+Available"];
+
+  const [selectedMedia, setSelectedMedia] = useState(mediaList[0]);
+  const [showPopup, setShowPopup] = useState(false);
+
+  // ৩. প্রোডাক্ট আপডেট হলে ডিফল্ট ইমেজ রিসেট করা
+  useEffect(() => {
+    if (product?.images?.length > 0) {
+      setSelectedMedia(product.images[0]);
+    }
+  }, [product]);
+
+  // ৪. ভিডিও ফাইল চেক (WebP বাদে অন্য ভিডিও ফরম্যাট চেক)
+  const isVideo = (url) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov)$/i) || (url.includes("res.cloudinary.com") && url.includes("/video/upload/"));
+  };
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.productSection}>
+        {/* Left: Media Gallery */}
+        <div style={styles.mediaContainer}>
+          <div style={styles.mainMedia}>
+            {isVideo(selectedMedia) ? (
+              <video 
+                src={selectedMedia} 
+                controls 
+                autoPlay 
+                muted 
+                loop 
+                key={selectedMedia} // সোর্স চেঞ্জ হলে ভিডিও রিলোড হওয়ার জন্য
+                style={styles.mediaElement} 
+              />
+            ) : (
+              <img src={selectedMedia} alt="Product" style={styles.mediaElement} />
+            )}
+          </div>
+          
+          <div style={styles.thumbnailGrid}>
+            {mediaList.map((media, i) => (
+              <div 
+                key={i} 
+                onClick={() => setSelectedMedia(media)}
+                style={{ 
+                  ...styles.thumbWrapper, 
+                  border: selectedMedia === media ? '2px solid #16a34a' : '2px solid #eee' 
+                }}
+              >
+                {isVideo(media) ? (
+                  <div style={styles.videoThumb}>▶ Video</div>
+                ) : (
+                  <img src={media} style={styles.thumbImg} alt={`thumb-${i}`} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Product Details */}
+        <div style={styles.detailsContainer}>
+          <h1 style={styles.title}>{product.name}</h1>
+          <div style={styles.priceTag}>
+            <span style={styles.currentPrice}>৳{product.discountPrice || product.price}</span>
+            {product.discountPrice && (
+              <span style={styles.oldPrice}>৳{product.price}</span>
+            )}
+          </div>
+
+          <p style={styles.shortDesc}>{product.shortDesc}</p>
+          
+          <button onClick={() => setShowPopup(true)} style={styles.orderBtn}>
+            অর্ডার করতে এখানে ক্লিক করুন
+          </button>
+
+          <div style={styles.longDescBox}>
+            <h4 style={{ marginBottom: '10px', color: '#333' }}>পণ্যটি সম্পর্কে বিস্তারিত:</h4>
+            <p style={{ whiteSpace: 'pre-line', color: '#555', lineHeight: '1.6' }}>
+              {product.longDesc}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div style={styles.featuresGrid}>
+        {product?.features?.map((f, i) => (
+          <div key={i} style={styles.featureCard}>
+            <div style={styles.featureIcon}>{f.icon || "✨"}</div>
+            <h4 style={{ margin: '10px 0' }}>{f.title}</h4>
+            <p style={styles.featureText}>{f.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Order Popup */}
+      {showPopup && (
+        <OrderPopup 
+          product={product} 
+          onClose={() => setShowPopup(false)} 
+          onOrder={onOrder} 
+        />
+      )}
+    </div>
+  );
+};
+
+// --- Order Popup Component ---
+const OrderPopup = ({ product, onClose, onOrder }) => {
+  const [formData, setFormData] = useState({ name: '', phone: '', address: '' });
+  const [location, setLocation] = useState('inside');
+  
+  const deliveryCharge = location === 'inside' ? 60 : 120;
+  const totalPrice = (Number(product.discountPrice) || Number(product.price)) + deliveryCharge;
+
+  const handleSubmit = (e) => {
+    e.preventDefault(); // ফর্ম রিলোড বন্ধ করা
+    
+    if (!formData.name || !formData.phone || !formData.address) {
+      alert("দয়া করে আপনার নাম, মোবাইল নম্বর এবং ঠিকানা সঠিকভাবে দিন।");
+      return;
+    }
+    
+    // মেইন অ্যাপের ফাংশন কল করা (পুরো ডাটা পাঠানো হচ্ছে)
+    onOrder({ 
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        location: location, 
+        total: totalPrice,
+        productName: product.name 
+    });
+    
+    onClose(); // পপআপ বন্ধ করা
+  };
+
+  return (
+    <div style={styles.overlay}>
+      <div style={styles.modal}>
+        <button onClick={onClose} style={styles.closeBtn}>✕</button>
+        <form onSubmit={handleSubmit} style={styles.modalContent}>
+          <div style={styles.formSide}>
+            <h3>অর্ডার কনফার্ম করুন</h3>
+            <input 
+              style={styles.input} 
+              placeholder="আপনার নাম লিখুন" 
+              required
+              value={formData.name}
+              onChange={e => setFormData({...formData, name: e.target.value})} 
+            />
+            <input 
+              style={styles.input} 
+              type="tel"
+              placeholder="মোবাইল নাম্বার" 
+              required
+              value={formData.phone}
+              onChange={e => setFormData({...formData, phone: e.target.value})} 
+            />
+            <textarea 
+              style={{...styles.input, height: '80px'}} 
+              placeholder="আপনার সম্পূর্ণ ঠিকানা দিন" 
+              required
+              value={formData.address}
+              onChange={e => setFormData({...formData, address: e.target.value})} 
+            />
+            
+            <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
+              <button 
+                type="button" 
+                onClick={() => setLocation('inside')}
+                style={location === 'inside' ? styles.locBtnActive : styles.locBtn}
+              >ঢাকা সিটির ভিতরে</button>
+              <button 
+                type="button" 
+                onClick={() => setLocation('outside')}
+                style={location === 'outside' ? styles.locBtnActive : styles.locBtn}
+              >ঢাকার বাইরে</button>
+            </div>
+          </div>
+
+          <div style={styles.summarySide}>
+            <h3>অর্ডার সামারি</h3>
+            <div style={styles.summaryRow}>
+              <span>প্রোডাক্ট প্রাইস:</span> <span>৳{product.discountPrice || product.price}</span>
+            </div>
+            <div style={styles.summaryRow}>
+              <span>ডেলিভারি চার্জ:</span> <span>৳{deliveryCharge}</span>
+            </div>
+            <hr style={{ border: '0.5px solid #eee' }} />
+            <div style={{...styles.summaryRow, fontWeight: 'bold', fontSize: '18px', color: '#16a34a'}}>
+              <span>সর্বমোট:</span> <span>৳{totalPrice}</span>
+            </div>
+            <button type="submit" style={styles.confirmBtn}>অর্ডার কনফার্ম করুন</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Styles অবজেক্টটি আগের মতোই থাকবে...
+const styles = {
+  container: { maxWidth: '1200px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' },
+  productSection: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px', background: '#fff', padding: '30px', borderRadius: '20px', boxShadow: '0 5px 15px rgba(0,0,0,0.05)' },
+  mediaContainer: { display: 'flex', flexDirection: 'column', gap: '15px' },
+  mainMedia: { width: '100%', height: '450px', borderRadius: '15px', overflow: 'hidden', background: '#f0f0f0' },
+  mediaElement: { width: '100%', height: '100%', objectFit: 'cover' },
+  thumbnailGrid: { display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' },
+  thumbWrapper: { width: '70px', height: '70px', borderRadius: '8px', cursor: 'pointer', overflow: 'hidden', flexShrink: 0 },
+  thumbImg: { width: '100%', height: '100%', objectFit: 'cover' },
+  videoThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#333', color: '#fff', fontSize: '10px' },
+  detailsContainer: { display: 'flex', flexDirection: 'column' },
+  title: { fontSize: '28px', margin: '0 0 15px 0', color: '#333' },
+  priceTag: { marginBottom: '20px' },
+  currentPrice: { fontSize: '32px', fontWeight: 'bold', color: '#16a34a' },
+  oldPrice: { textDecoration: 'line-through', color: '#999', marginLeft: '15px', fontSize: '20px' },
+  shortDesc: { fontSize: '16px', color: '#666', lineHeight: '1.6', marginBottom: '25px' },
+  orderBtn: { padding: '18px', fontSize: '20px', fontWeight: 'bold', background: '#ff4d4d', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer' },
+  longDescBox: { marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '20px' },
+  featuresGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '40px' },
+  featureCard: { background: '#fff', padding: '30px', borderRadius: '15px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' },
+  featureIcon: { fontSize: '40px' },
+  featureText: { fontSize: '14px', color: '#777' },
+  overlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modal: { background: '#fff', width: '90%', maxWidth: '850px', borderRadius: '20px', position: 'relative', overflow: 'hidden' },
+  closeBtn: { position: 'absolute', top: '15px', right: '15px', border: 'none', background: 'none', fontSize: '24px', cursor: 'pointer', zIndex: 10 },
+  modalContent: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' },
+  formSide: { padding: '40px', borderRight: '1px solid #eee' },
+  summarySide: { padding: '40px', background: '#fdfdfd' },
+  input: { width: '100%', padding: '12px', marginBottom: '15px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
+  locBtn: { flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '8px', background: '#fff', cursor: 'pointer' },
+  locBtnActive: { flex: 1, padding: '10px', border: '1px solid #16a34a', borderRadius: '8px', background: '#16a34a', color: '#fff', cursor: 'pointer' },
+  summaryRow: { display: 'flex', justifyContent: 'space-between', marginBottom: '15px' },
+  confirmBtn: { width: '100%', padding: '15px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold', marginTop: '20px', cursor: 'pointer' }
+};
+
+export default Home;
