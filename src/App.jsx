@@ -3,7 +3,9 @@ import axios from 'axios';
 import Home from './components/Home';
 import Admin from './components/Admin';
 
-const API_BASE_URL = "http://localhost:5000/api";
+// src/App.jsx
+// App.jsx
+const API_BASE_URL = "https://landingpage1-qknz.onrender.com/api";
 
 function App() {
   const [product, setProduct] = useState(null);
@@ -35,20 +37,43 @@ function App() {
 
   // ২. নতুন অর্ডার সেভ করার ফাংশন (যা Home.jsx থেকে কল হবে)
   const handleNewOrder = async (orderData) => {
-    try {
-      // ব্যাকেন্ডে অর্ডার পাঠানো
-      const res = await axios.post(`${API_BASE_URL}/orders`, orderData);
+  try {
+    // ১. ডাটাবেসে অর্ডার সেভ করা (আগের মতোই থাকবে)
+    const res = await axios.post(`${API_BASE_URL}/orders`, orderData);
+    
+    if (res.status === 201 || res.status === 200) {
       
-      if (res.status === 201 || res.status === 200) {
-        alert("আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!");
-        // অর্ডার সেভ হওয়ার পর ডাটা রিফ্রেশ করা যাতে এডমিন প্যানেলে দেখা যায়
-        await refreshData(); 
-      }
-    } catch (err) {
-      console.error("Order Post Error:", err);
-      alert("অর্ডার দিতে সমস্যা হয়েছে। সার্ভার চেক করুন।");
+      // ২. হোয়াটসঅ্যাপ মেসেজ তৈরি করা
+      const myNumber = "8801818486486"; // এখানে আপনার নিজের হোয়াটসঅ্যাপ নাম্বার দিন (88 সহ)
+      
+      const message = `নতুন অর্ডার! 🔥
+-------------------------
+পণ্য: ${product.name}
+নাম: ${orderData.name}
+ফোন: ${orderData.phone}
+ঠিকানা: ${orderData.address}
+ডেলিভারি: ${orderData.location === 'inside' ? 'ঢাকার ভেতরে' : 'ঢাকার বাইরে'}
+মোট বিল: ৳${orderData.total}
+-------------------------
+ধন্যবাদ!`;
+
+      // ইউআরএল এনকোড করা যাতে স্পেস এবং ইমোজি ঠিক থাকে
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappURL = `https://wa.me/${myNumber}?text=${encodedMessage}`;
+
+      // ৩. কাস্টমারকে সাকসেস মেসেজ দেখানো এবং হোয়াটসঅ্যাপে পাঠানো
+      alert("আপনার অর্ডারটি সফলভাবে ডাটাবেসে সেভ হয়েছে!");
+      
+      // নতুন ট্যাবে হোয়াটসঅ্যাপ ওপেন হবে
+      window.open(whatsappURL, '_blank');
+
+      await refreshData(); 
     }
-  };
+  } catch (err) {
+    console.error("Order Error:", err);
+    alert("অর্ডার দিতে সমস্যা হয়েছে।");
+  }
+};
 
   if (loading) return (
     <div style={{textAlign: 'center', marginTop: '100px', fontSize: '20px'}}>
