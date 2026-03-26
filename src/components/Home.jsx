@@ -9,7 +9,7 @@ const Home = ({ product, onOrder }) => {
       </div>
     );
   }
-
+<div style={styles.productSection} className="product-section-responsive"></div>
   // ২. মিডিয়া লিস্ট সেট করা (WebP সাপোর্ট সহ)
   const mediaList = product?.images?.length > 0 
     ? product.images 
@@ -215,38 +215,121 @@ const OrderPopup = ({ product, onClose, onOrder }) => {
 
 // Styles অবজেক্টটি আগের মতোই থাকবে...
 const styles = {
-  container: { maxWidth: '1200px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' },
-  productSection: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px', background: '#fff', padding: '30px', borderRadius: '20px', boxShadow: '0 5px 15px rgba(0,0,0,0.05)' },
-  mediaContainer: { display: 'flex', flexDirection: 'column', gap: '15px' },
-  mainMedia: { width: '100%', height: '450px', borderRadius: '15px', overflow: 'hidden', background: '#f0f0f0' },
-  mediaElement: { width: '100%', height: '100%', objectFit: 'cover' },
-  thumbnailGrid: { display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' },
-  thumbWrapper: { width: '70px', height: '70px', borderRadius: '8px', cursor: 'pointer', overflow: 'hidden', flexShrink: 0 },
+  container: { 
+    maxWidth: '1200px', 
+    margin: '0 auto', 
+    padding: '10px', 
+    fontFamily: 'Arial, sans-serif',
+    boxSizing: 'border-box'
+  },
+  productSection: { 
+    display: 'flex', 
+    flexDirection: 'column', // মোবাইলে ওপর-নিচে হবে
+    gap: '20px', 
+    background: '#fff', 
+    padding: '15px', 
+    borderRadius: '15px', 
+    boxShadow: '0 5px 15px rgba(0,0,0,0.05)',
+    // পিসির জন্য গ্রিড লেআউট (নিচে মিডিয়া কুয়েরি স্টাইলে কন্ডিশন দেওয়া হবে)
+  },
+  mediaContainer: { 
+    width: '100%', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: '10px' 
+  },
+  mainMedia: { 
+    width: '100%', 
+    aspectRatio: '1 / 1', // স্কয়ার শেপ থাকবে সব ডিভাইসে
+    maxHeight: '450px', 
+    borderRadius: '12px', 
+    overflow: 'hidden', 
+    background: '#f0f0f0' 
+  },
+  mediaElement: { 
+    width: '100%', 
+    height: '100%', 
+    objectFit: 'cover' 
+  },
+  thumbnailGrid: { 
+    display: 'flex', 
+    gap: '8px', 
+    overflowX: 'auto', 
+    paddingBottom: '5px',
+    scrollbarWidth: 'none' // স্ক্রলবার হাইড করা
+  },
+  thumbWrapper: { 
+    width: '60px', 
+    height: '60px', 
+    borderRadius: '8px', 
+    cursor: 'pointer', 
+    overflow: 'hidden', 
+    flexShrink: 0 
+  },
   thumbImg: { width: '100%', height: '100%', objectFit: 'cover' },
-  videoThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#333', color: '#fff', fontSize: '10px' },
-  detailsContainer: { display: 'flex', flexDirection: 'column' },
-  title: { fontSize: '28px', margin: '0 0 15px 0', color: '#333' },
-  priceTag: { marginBottom: '20px' },
-  currentPrice: { fontSize: '32px', fontWeight: 'bold', color: '#16a34a' },
-  oldPrice: { textDecoration: 'line-through', color: '#999', marginLeft: '15px', fontSize: '20px' },
-  shortDesc: { fontSize: '16px', color: '#666', lineHeight: '1.6', marginBottom: '25px' },
-  orderBtn: { padding: '18px', fontSize: '20px', fontWeight: 'bold', background: '#ff4d4d', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer' },
-  longDescBox: { marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '20px' },
-  featuresGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '40px' },
-  featureCard: { background: '#fff', padding: '30px', borderRadius: '15px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' },
-  featureIcon: { fontSize: '40px' },
-  featureText: { fontSize: '14px', color: '#777' },
-  overlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: '#fff', width: '90%', maxWidth: '850px', borderRadius: '20px', position: 'relative', overflow: 'hidden' },
-  closeBtn: { position: 'absolute', top: '15px', right: '15px', border: 'none', background: 'none', fontSize: '24px', cursor: 'pointer', zIndex: 10 },
-  modalContent: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' },
-  formSide: { padding: '40px', borderRight: '1px solid #eee' },
-  summarySide: { padding: '40px', background: '#fdfdfd' },
-  input: { width: '100%', padding: '12px', marginBottom: '15px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' },
-  locBtn: { flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '8px', background: '#fff', cursor: 'pointer' },
-  locBtnActive: { flex: 1, padding: '10px', border: '1px solid #16a34a', borderRadius: '8px', background: '#16a34a', color: '#fff', cursor: 'pointer' },
-  summaryRow: { display: 'flex', justifyContent: 'space-between', marginBottom: '15px' },
-  confirmBtn: { width: '100%', padding: '15px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold', marginTop: '20px', cursor: 'pointer' }
-};
+  videoThumb: { 
+    width: '100%', height: '100%', display: 'flex', alignItems: 'center', 
+    justifyContent: 'center', background: '#333', color: '#fff', fontSize: '10px' 
+  },
+  detailsContainer: { 
+    width: '100%', 
+    display: 'flex', 
+    flexDirection: 'column',
+    padding: '5px'
+  },
+  title: { fontSize: '22px', margin: '10px 0', color: '#333', lineHeight: '1.3' },
+  priceTag: { marginBottom: '15px' },
+  currentPrice: { fontSize: '28px', fontWeight: 'bold', color: '#16a34a' },
+  oldPrice: { textDecoration: 'line-through', color: '#999', marginLeft: '10px', fontSize: '18px' },
+  shortDesc: { fontSize: '14px', color: '#666', lineHeight: '1.5', marginBottom: '20px' },
+  orderBtn: { 
+    padding: '15px', 
+    fontSize: '18px', 
+    fontWeight: 'bold', 
+    background: '#ff4d4d', 
+    color: '#fff', 
+    border: 'none', 
+    borderRadius: '10px', 
+    cursor: 'pointer',
+    width: '100%', // মোবাইলে পুরোটা জুড়ে থাকবে
+    boxShadow: '0 4px 10px rgba(255, 77, 77, 0.3)'
+  },
+  longDescBox: { marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' },
+  featuresGrid: { 
+    display: 'grid', 
+    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', // ছোট কার্ড সব ডিভাইসে ফিট হবে
+    gap: '15px', 
+    marginTop: '30px' 
+  },
+  featureCard: { 
+    background: '#fff', 
+    padding: '15px', 
+    borderRadius: '12px', 
+    textAlign: 'center', 
+    boxShadow: '0 2px 5px rgba(0,0,0,0.03)' 
+  },
+  featureIcon: { fontSize: '30px' },
+  featureText: { fontSize: '12px', color: '#777' },
 
+  // --- Popup (Mobile Friendly) ---
+  overlay: { 
+    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', 
+    background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', 
+    justifyContent: 'center', zIndex: 2000, padding: '10px' 
+  },
+  modal: { 
+    background: '#fff', width: '100%', maxWidth: '500px', 
+    borderRadius: '15px', position: 'relative', overflowY: 'auto', 
+    maxHeight: '90vh' 
+  },
+  closeBtn: { position: 'absolute', top: '10px', right: '10px', border: 'none', background: '#eee', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer' },
+  modalContent: { display: 'flex', flexDirection: 'column' },
+  formSide: { padding: '20px' },
+  summarySide: { padding: '20px', background: '#f9f9f9', borderTop: '1px solid #eee' },
+  input: { width: '100%', padding: '12px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' },
+  locBtn: { flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '8px', background: '#fff', fontSize: '12px' },
+  locBtnActive: { flex: 1, padding: '10px', border: '1px solid #16a34a', borderRadius: '8px', background: '#16a34a', color: '#fff', fontSize: '12px' },
+  summaryRow: { display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' },
+  confirmBtn: { width: '100%', padding: '15px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', marginTop: '10px' }
+};
 export default Home;

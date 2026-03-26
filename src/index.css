@@ -1,0 +1,18 @@
+/* src/App.css বা index.css এ এটি যোগ করুন */
+@media (min-width: 768px) {
+  .product-section-responsive {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 40px !important;
+    padding: 30px !important;
+  }
+}
+
+/* মোবাইল ও ট্যাবে প্যাডিং ঠিক করার জন্য */
+@media (max-width: 767px) {
+  .product-section-responsive {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 15px !important;
+  }
+}
