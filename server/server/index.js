@@ -86,7 +86,7 @@ app.post('/api/orders', async (req, res) => {
         const totalPrice = productPrice + deliveryCharge;
 
         const mailOptions = {
-            from: `"Gadget Hub" <${process.env.EMAIL_USER}>`,
+            from: `"FreshClick" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Order Confirmation - Gadget Hub',
             html: `

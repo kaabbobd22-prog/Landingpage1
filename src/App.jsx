@@ -8,17 +8,21 @@ const App = () => {
   const [formData, setFormData] = useState({ name: '', number: '', email: '', address: '' });
   const [loading, setLoading] = useState(false);
 
-  // --- Meta Pixel Initialization ---
+  // --- Meta Pixel Initialization (New ID: 750067381233776) ---
   useEffect(() => {
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    window.fbq('init', '1498863321657213');
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ?
+        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+
+    window.fbq('init', '750067381233776'); // আপনার নতুন পিক্সেল আইডি
     window.fbq('track', 'PageView');
   }, []);
 
@@ -29,18 +33,18 @@ const App = () => {
   const handleOrder = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const orderData = {
         name: formData.name,
         number: formData.number,
         email: formData.email,
         address: formData.address,
-        product: "Deshi Chikhen 250gm" // আপডেট করা প্রোডাক্ট নাম
+        product: "Deshi Chikhen 250gm"
       };
 
       const response = await axios.post('https://landingpage1-qknz.onrender.com/api/orders', orderData);
-      
+
       if (response.data.success) {
         // --- Meta Pixel Purchase Event ---
         if (window.fbq) {
@@ -53,8 +57,8 @@ const App = () => {
         }
 
         alert(response.data.message || "ধন্যবাদ! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।");
-        setIsModalOpen(false); 
-        setFormData({ name: '', number: '', email: '', address: '' }); 
+        setIsModalOpen(false);
+        setFormData({ name: '', number: '', email: '', address: '' });
       }
     } catch (error) {
       console.error("Order Error:", error.response?.data);
@@ -82,18 +86,18 @@ const App = () => {
       {/* --- Product Section --- */}
       <main className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-          
+
           {/* Left: Photos */}
           <div className="space-y-4">
             <div className="aspect-[4/5] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200">
-                {/* Main Image */}
-                <img src="Main.png" alt="Main Product" className="w-full h-full object-cover" />
+              {/* Main Image */}
+              <img src="Main.png" alt="Main Product" className="w-full h-full object-cover" />
             </div>
             <div className="flex gap-4">
-              {/* Slide Images (Slide-1, Slide-2, Slide-3) */}
+              {/* Slide Images */}
               {slideImages.map((imgName, i) => (
                 <div key={i} className="w-24 h-24 bg-gray-200 rounded-xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-orange-500 transition">
-                  <img src={imgName} alt={`Slide ${i+1}`} className="w-full h-full object-cover" />
+                  <img src={imgName} alt={`Slide ${i + 1}`} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
@@ -103,7 +107,7 @@ const App = () => {
           <div className="flex flex-col justify-center">
             <h1 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900 text-balance">Deshi Chikhen 250gm</h1>
             <div className="flex items-center mt-4 gap-2 text-orange-500">
-              <div className="flex"><Star size={18} fill="currentColor"/><Star size={18} fill="currentColor"/><Star size={18} fill="currentColor"/><Star size={18} fill="currentColor"/><Star size={18} fill="currentColor"/></div>
+              <div className="flex"><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /><Star size={18} fill="currentColor" /></div>
               <span className="text-gray-400 text-sm font-medium">(4.8 from 350 Reviews)</span>
             </div>
             <div className="mt-8">
@@ -114,7 +118,7 @@ const App = () => {
               একদম ফ্রেশ এবং দেশি মুরগির মাংস। স্বাস্থ্যসম্মত ভাবে প্রসেস করা এবং রান্নার জন্য প্রস্তুত।
             </p>
             <div className="mt-10">
-              <button 
+              <button
                 onClick={() => setIsModalOpen(true)}
                 className="w-full md:w-auto bg-orange-600 text-white px-16 py-5 rounded-full font-black text-sm tracking-widest hover:bg-orange-700 transition-all shadow-xl shadow-orange-100 active:scale-95 uppercase">
                 BUY IT NOW
@@ -142,7 +146,7 @@ const App = () => {
               <div className="max-w-3xl">
                 <h3 className="text-2xl font-bold mb-4">Product Overview</h3>
                 <p className="text-gray-600 leading-7 text-lg">
-                  আমাদের এই দেশি মুরগি সরাসরি খামার থেকে সংগৃহীত। এতে কোনো প্রকার ক্ষতিকর অ্যান্টিবায়োটিক বা কেমিক্যাল ব্যবহার করা হয়নি। 
+                  আমাদের এই দেশি মুরগি সরাসরি খামার থেকে সংগৃহীত। এতে কোনো প্রকার ক্ষতিকর অ্যান্টিবায়োটিক বা কেমিক্যাল ব্যবহার করা হয়নি।
                 </p>
                 <ul className="mt-6 space-y-4">
                   <li className="flex items-center gap-3 text-gray-700 font-medium">✅ 100% Organic & Fresh</li>
@@ -171,46 +175,46 @@ const App = () => {
             <form onSubmit={handleOrder} className="space-y-5">
               <div className="relative group">
                 <User className="absolute left-4 top-4 text-gray-400 group-focus-within:text-orange-500 transition" size={20} />
-                <input 
+                <input
                   type="text" required placeholder="Full Name"
                   value={formData.name}
                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 ring-orange-500 transition-all outline-none"
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
               <div className="relative group">
                 <Phone className="absolute left-4 top-4 text-gray-400 group-focus-within:text-orange-500 transition" size={20} />
-                <input 
+                <input
                   type="tel" required placeholder="Phone Number"
                   value={formData.number}
                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 ring-orange-500 transition-all outline-none"
-                  onChange={(e) => setFormData({...formData, number: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, number: e.target.value })}
                 />
               </div>
               <div className="relative group">
                 <Mail className="absolute left-4 top-4 text-gray-400 group-focus-within:text-orange-500 transition" size={20} />
-                <input 
+                <input
                   type="email" required placeholder="Email Address"
                   value={formData.email}
                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 ring-orange-500 transition-all outline-none"
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
               <div className="relative group">
                 <MapPin className="absolute left-4 top-4 text-gray-400 group-focus-within:text-orange-500 transition" size={20} />
-                <textarea 
+                <textarea
                   required placeholder="House no, road no, area, city." rows="3"
                   value={formData.address}
                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 ring-orange-500 transition-all outline-none resize-none"
-                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 ></textarea>
               </div>
-              
-              <button 
-                type="submit" 
+
+              <button
+                type="submit"
                 disabled={loading}
                 className="w-full bg-orange-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-orange-700 transition-all shadow-xl shadow-orange-100 uppercase tracking-widest flex justify-center items-center gap-2">
-                {loading ? <><Loader2 className="animate-spin" size={20}/> Processing...</> : "Confirm Order Now"}
+                {loading ? <><Loader2 className="animate-spin" size={20} /> Processing...</> : "Confirm Order Now"}
               </button>
             </form>
           </div>
