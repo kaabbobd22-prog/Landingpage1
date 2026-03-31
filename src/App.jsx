@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShoppingCart, Star, X, MapPin, Phone, User, Mail, Loader2 } from 'lucide-react';
 
@@ -7,6 +7,20 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('details');
   const [formData, setFormData] = useState({ name: '', number: '', email: '', address: '' });
   const [loading, setLoading] = useState(false);
+
+  // --- Meta Pixel Initialization ---
+  useEffect(() => {
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    window.fbq('init', '1498863321657213');
+    window.fbq('track', 'PageView');
+  }, []);
 
   // --- Image Array ---
   const slideImages = ["Slide-1.png", "Slide-2.png", "Slide-3.png"];
@@ -25,9 +39,19 @@ const App = () => {
         product: "Deshi Chikhen 250gm" // আপডেট করা প্রোডাক্ট নাম
       };
 
-      const response = await axios.post('http://localhost:5000/api/orders', orderData);
+      const response = await axios.post('https://landingpage1-qknz.onrender.com/api/orders', orderData);
       
       if (response.data.success) {
+        // --- Meta Pixel Purchase Event ---
+        if (window.fbq) {
+          window.fbq('track', 'Purchase', {
+            value: 250.00,
+            currency: 'BDT',
+            content_name: 'Deshi Chikhen 250gm',
+            content_type: 'product'
+          });
+        }
+
         alert(response.data.message || "ধন্যবাদ! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।");
         setIsModalOpen(false); 
         setFormData({ name: '', number: '', email: '', address: '' }); 
@@ -118,7 +142,7 @@ const App = () => {
               <div className="max-w-3xl">
                 <h3 className="text-2xl font-bold mb-4">Product Overview</h3>
                 <p className="text-gray-600 leading-7 text-lg">
-                  আমাদের এই দেশি মুরগি সরাসরি খামার থেকে সংগৃহীত। এতে কোনো প্রকার ক্ষতিকর অ্যান্টিবায়োটিক বা কেমিক্যাল ব্যবহার করা হয়নি। 
+                  আমাদের এই দেশি মুরগি সরাসরি খামার থেকে সংগৃহীত। এতে কোনো প্রকার ক্ষতিকর অ্যান্টিবায়োটিক বা কেমিক্যাল ব্যবহার করা হয়নি। 
                 </p>
                 <ul className="mt-6 space-y-4">
                   <li className="flex items-center gap-3 text-gray-700 font-medium">✅ 100% Organic & Fresh</li>
