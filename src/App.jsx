@@ -8,7 +8,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   
   // Gallery Logic: 1 Main + 5 Gallery Images
-  const allImages = ["Main.png", "Slide-1.png", "Slide-2.png", "Slide-3.png", "Slide-4.png", "Slide-5.png"];
+  const allImages = ["main.jpeg", "BA1.jpeg", "BA2.jpeg", "BA3.jpeg", "BA4.jpeg", "BA5.jpeg"];
   const [mainImage, setMainImage] = useState(allImages[0]);
 
   // Form State with Color Selection AND Email Field
