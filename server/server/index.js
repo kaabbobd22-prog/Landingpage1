@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
+const https = require('https'); // সার্ভারকে সজাগ রাখার জন্য
 require('dotenv').config();
 
 const app = express();
@@ -15,13 +16,15 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ MongoDB Connected"))
     .catch(err => console.error("❌ DB Connection Error:", err));
 
-// Order Schema
+// Order Schema with Color & Email Sync
 const orderSchema = new mongoose.Schema({
     name: { type: String, required: true },
     number: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true }, // App.jsx থেকে আসা ইমেইলের জন্য
     address: { type: String, required: true },
     product: { type: String, required: true },
+    selectedColor: { type: String, required: true },
+    price: { type: Number, default: 899 },
     createdAt: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', orderSchema);
@@ -36,99 +39,102 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    tls: {
-        rejectUnauthorized: false
-    }
+    tls: { rejectUnauthorized: false }
 });
 
-// Logger Middleware
-app.use((req, res, next) => {
-    console.log(`${req.method} request received at ${req.url}`);
-    next();
+// Ping Route (সার্ভার সজাগ রাখার জন্য)
+app.get('/ping', (req, res) => {
+    res.status(200).send("Server is awake!");
 });
 
-// Root Route
-app.get('/', (req, res) => res.send("GadgetHub Backend Running"));
-
-// ১. সব অর্ডার দেখার জন্য API (Admin/Compass এর বিকল্প)
-app.get('/api/orders', async (req, res) => {
-    try {
-        const orders = await Order.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, orders });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "অর্ডার আনতে সমস্যা হয়েছে।" });
-    }
-});
-
-// ২. Order API (POST) - নতুন অর্ডার তৈরি
+// Order API (POST)
 app.post('/api/orders', async (req, res) => {
     try {
-        const { name, number, email, address, product } = req.body;
+        // App.jsx থেকে পাঠানো ডাটা রিসিভ করা হচ্ছে
+        const { name, number, email, address, product, selectedColor } = req.body;
 
-        if (!name || !number || !email || !address || !product) {
-            return res.status(400).json({ success: false, message: "সবগুলো তথ্য প্রদান করুন!" });
+        // Validation
+        if (!name || !number || !email || !address) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
-        // ডাটাবেসে সেভ করা
-        const order = new Order({ name, number, email, address, product });
-        await order.save();
-        console.log("💾 Order saved to DB");
-
-        // ফ্রন্টএন্ডকে সাথে সাথে রেসপন্স দেওয়া
-        res.status(201).json({
-            success: true,
-            message: `ধন্যবাদ ${name}! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।`
+        // Save Order to DB
+        const order = new Order({ 
+            name, 
+            number, 
+            email, 
+            address, 
+            product, 
+            selectedColor, 
+            price: 899 
         });
+        await order.save();
+        console.log(`💾 New order saved: ${selectedColor} for ${email}`);
 
-        // ব্যাকগ্রাউন্ডে ইমেইল পাঠানোর লজিক (Updated Price & Template)
-        const productPrice = 250; // আপনার অফার প্রাইস অনুযায়ী
-        const deliveryCharge = 60; // ডেলিভারি চার্জ (আপনি চাইলে পরিবর্তন করতে পারেন)
-        const totalPrice = productPrice + deliveryCharge;
+        res.status(201).json({ success: true, message: "Order Successful" });
 
+        // Professional Email Template (Sending to Customer)
         const mailOptions = {
-            from: `"FreshClick" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: 'Order Confirmation - Gadget Hub',
+            from: `"KitchenPro BD" <${process.env.EMAIL_USER}>`,
+            to: email, // কাস্টমারের ইমেইলে যাবে
+            subject: `Order Confirmed: ${selectedColor} Utensil Set (৳899)`,
             html: `
-                <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
-                    <div style="background-color: #ea580c; padding: 20px; text-align: center;">
-                        <h1 style="color: white; margin: 0; font-size: 22px;">অর্ডার কনফার্ম হয়েছে!</h1>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
+                    <div style="background-color: #166534; padding: 25px; text-align: center; color: white;">
+                        <h2 style="margin: 0; font-size: 20px;">Order Confirmed!</h2>
                     </div>
                     <div style="padding: 25px; color: #333;">
-                        <p style="font-size: 16px;">প্রিয় <strong>${name}</strong>,</p>
-                        <p style="color: #666;">আপনার অর্ডারটি আমরা পেয়েছি। খুব শীঘ্রই আমাদের প্রতিনিধি কল দিয়ে অর্ডারটি কনফার্ম করবেন।</p>
+                        <p style="font-size: 16px;">Hi <strong>${name}</strong>, thank you for your order!</p>
                         
-                        <div style="background: #fef2f2; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #ea580c;">
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px dashed #166534; margin: 20px 0;">
                             <table style="width: 100%; border-collapse: collapse;">
-                                <tr><td style="padding: 5px 0;">পণ্য:</td><td style="text-align: right; font-weight: bold;">${product}</td></tr>
-                                <tr><td style="padding: 5px 0;">মূল্য:</td><td style="text-align: right; font-weight: bold;">${productPrice} TK</td></tr>
-                                <tr><td style="padding: 5px 0;">ডেলিভারি:</td><td style="text-align: right; font-weight: bold;">${deliveryCharge} TK</td></tr>
-                                <tr style="border-top: 1px solid #ddd;"><td style="padding: 10px 0 0; font-weight: bold; color: #ea580c;">মোট:</td><td style="padding: 10px 0 0; text-align: right; font-weight: bold; color: #ea580c;">${totalPrice} TK</td></tr>
+                                <tr><td style="padding: 5px 0; color: #64748b;">Selected Color:</td><td style="text-align: right; font-weight: bold; color: #166534;">${selectedColor}</td></tr>
+                                <tr><td style="padding: 5px 0; color: #64748b;">Amount:</td><td style="text-align: right; font-weight: bold;">৳899</td></tr>
+                                <tr><td style="padding: 5px 0; color: #64748b;">Delivery:</td><td style="text-align: right; font-weight: bold; color: #16a34a;">FREE</td></tr>
                             </table>
                         </div>
 
-                        <p style="font-size: 13px; color: #888;">ঠিকানা: ${address}</p>
+                        <p style="font-size: 14px;"><strong>Shipping Details:</strong></p>
+                        <p style="font-size: 13px; color: #475569; margin: 0;">Phone: ${number}</p>
+                        <p style="font-size: 13px; color: #475569; margin: 5px 0;">Address: ${address}</p>
+                        
+                        <p style="font-size: 14px; margin-top: 15px; color: #166534; font-weight: bold;">We will call you shortly for verification.</p>
                     </div>
-                    <div style="background: #f9fafb; padding: 15px; text-align: center; border-top: 1px solid #eee;">
-                        <p style="margin: 0; font-size: 12px; color: #999;">Gadget Hub Team | All Rights Reserved</p>
+                    <div style="background: #f1f5f9; padding: 15px; text-align: center; font-size: 12px; color: #94a3b8;">
+                        KitchenPro BD | Keep your kitchen aesthetic!
                     </div>
                 </div>
             `
         };
 
-        // ব্যাকগ্রাউন্ড ইমেইল সেন্ডিং
-        transporter.sendMail(mailOptions, (err, info) => {
-            if (err) console.error("⚠️ Email Error:", err.message);
-            else console.log("📧 Email sent successfully");
+        transporter.sendMail(mailOptions, (err) => {
+            if (err) console.error("⚠️ Email error:", err.message);
+            else console.log("📧 Order confirmation sent to customer!");
         });
 
     } catch (error) {
-        console.error("❌ Server Error:", error);
-        if (!res.headersSent) {
-            return res.status(500).json({ success: false, message: "সার্ভারে সমস্যা হয়েছে।" });
-        }
+        console.error("Server Error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    
+    // ==========================================
+    // Render Keep-Alive Logic (Auto Ping)
+    // ==========================================
+    const RENDER_URL = "https://landingpage1-qknz.onrender.com"; // আপনার রেন্ডার ইউআরএল
+    
+    // প্রতি ১০ মিনিট (৬০০,০০০ মিলিসেকেন্ড) পর পর সার্ভার নিজেকে হিট করবে
+    setInterval(() => {
+        https.get(`${RENDER_URL}/ping`, (resp) => {
+            if (resp.statusCode === 200) {
+                console.log(`[Keep-Alive] Ping successful! Server is awake. (${new Date().toLocaleTimeString()})`);
+            }
+        }).on("error", (err) => {
+            console.error("[Keep-Alive] Error:", err.message);
+        });
+    }, 10 * 60 * 1000); 
+});
