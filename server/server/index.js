@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
-const https = require('https'); // সার্ভারকে সজাগ রাখার জন্য
+const https = require('https');
 require('dotenv').config();
 
 const app = express();
@@ -20,11 +20,11 @@ mongoose.connect(process.env.MONGO_URI)
 const orderSchema = new mongoose.Schema({
     name: { type: String, required: true },
     number: { type: String, required: true },
-    email: { type: String, required: true }, // App.jsx থেকে আসা ইমেইলের জন্য
+    email: { type: String, required: true },
     address: { type: String, required: true },
     product: { type: String, required: true },
     selectedColor: { type: String, required: true },
-    price: { type: Number, default: 899 },
+    price: { type: Number, default: 1299 },
     createdAt: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', orderSchema);
@@ -42,7 +42,7 @@ const transporter = nodemailer.createTransport({
     tls: { rejectUnauthorized: false }
 });
 
-// Ping Route (সার্ভার সজাগ রাখার জন্য)
+// Ping Route 
 app.get('/ping', (req, res) => {
     res.status(200).send("Server is awake!");
 });
@@ -50,7 +50,6 @@ app.get('/ping', (req, res) => {
 // Order API (POST)
 app.post('/api/orders', async (req, res) => {
     try {
-        // App.jsx থেকে পাঠানো ডাটা রিসিভ করা হচ্ছে
         const { name, number, email, address, product, selectedColor } = req.body;
 
         // Validation
@@ -59,14 +58,14 @@ app.post('/api/orders', async (req, res) => {
         }
 
         // Save Order to DB
-        const order = new Order({ 
-            name, 
-            number, 
-            email, 
-            address, 
-            product, 
-            selectedColor, 
-            price: 899 
+        const order = new Order({
+            name,
+            number,
+            email,
+            address,
+            product,
+            selectedColor,
+            price: 1299
         });
         await order.save();
         console.log(`💾 New order saved: ${selectedColor} for ${email}`);
@@ -76,8 +75,8 @@ app.post('/api/orders', async (req, res) => {
         // Professional Email Template (Sending to Customer)
         const mailOptions = {
             from: `"KitchenPro BD" <${process.env.EMAIL_USER}>`,
-            to: email, // কাস্টমারের ইমেইলে যাবে
-            subject: `Order Confirmed: ${selectedColor} Utensil Set (৳899)`,
+            to: email,
+            subject: `Order Confirmed: ${selectedColor} Utensil Set (৳1299)`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
                     <div style="background-color: #166534; padding: 25px; text-align: center; color: white;">
@@ -89,8 +88,8 @@ app.post('/api/orders', async (req, res) => {
                         <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px dashed #166534; margin: 20px 0;">
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr><td style="padding: 5px 0; color: #64748b;">Selected Color:</td><td style="text-align: right; font-weight: bold; color: #166534;">${selectedColor}</td></tr>
-                                <tr><td style="padding: 5px 0; color: #64748b;">Amount:</td><td style="text-align: right; font-weight: bold;">৳899</td></tr>
-                                <tr><td style="padding: 5px 0; color: #64748b;">Delivery:</td><td style="text-align: right; font-weight: bold; color: #16a34a;">FREE</td></tr>
+                                <tr><td style="padding: 5px 0; color: #64748b;">Amount:</td><td style="text-align: right; font-weight: bold;">৳1299</td></tr>
+                                <tr><td style="padding: 5px 0; color: #64748b;">Delivery:</td><td style="text-align: right; font-weight: bold; color: #16a34a;">100</td></tr>
                             </table>
                         </div>
 
@@ -121,13 +120,9 @@ app.post('/api/orders', async (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    
-    // ==========================================
-    // Render Keep-Alive Logic (Auto Ping)
-    // ==========================================
-    const RENDER_URL = "https://landingpage1-qknz.onrender.com"; // আপনার রেন্ডার ইউআরএল
-    
-    // প্রতি ১০ মিনিট (৬০০,০০০ মিলিসেকেন্ড) পর পর সার্ভার নিজেকে হিট করবে
+
+    const RENDER_URL = "https://landingpage1-qknz.onrender.com";
+
     setInterval(() => {
         https.get(`${RENDER_URL}/ping`, (resp) => {
             if (resp.statusCode === 200) {
@@ -136,5 +131,5 @@ app.listen(PORT, () => {
         }).on("error", (err) => {
             console.error("[Keep-Alive] Error:", err.message);
         });
-    }, 10 * 60 * 1000); 
+    }, 10 * 60 * 1000);
 });

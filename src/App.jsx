@@ -6,18 +6,18 @@ const App = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
   const [loading, setLoading] = useState(false);
-  
+
   // Gallery Logic: 1 Main + 5 Gallery Images
   const allImages = ["main.jpeg", "BA1.jpeg", "BA2.jpeg", "BA3.jpeg", "BA4.jpeg", "BA5.jpeg"];
   const [mainImage, setMainImage] = useState(allImages[0]);
 
   // Form State with Color Selection AND Email Field
-  const [formData, setFormData] = useState({ 
-    name: '', 
-    number: '', 
-    email: '', 
-    address: '', 
-    selectedColor: 'Mint Green' 
+  const [formData, setFormData] = useState({
+    name: '',
+    number: '',
+    email: '',
+    address: '',
+    selectedColor: 'Mint Green'
   });
 
   // Available Colors
@@ -39,8 +39,8 @@ const App = () => {
       t.src = v; s = b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t, s)
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-    
-    window.fbq('init', '750067381233776'); 
+
+    window.fbq('init', '750067381233776');
     window.fbq('track', 'PageView');
   }, []);
 
@@ -52,7 +52,7 @@ const App = () => {
       const orderData = {
         ...formData,
         product: "Premium Silicone Kitchen Utensil Set (12 Pcs)",
-        price: 899
+        price: 1299
       };
 
       const response = await axios.post('https://landingpage1-qknz.onrender.com/api/orders', orderData);
@@ -61,7 +61,7 @@ const App = () => {
         // Meta Pixel Purchase Tracking
         if (window.fbq) {
           window.fbq('track', 'Purchase', {
-            value: 899.00,
+            value: 1299.00,
             currency: 'BDT',
             content_name: `Silicone Set - ${formData.selectedColor}`,
             content_type: 'product'
@@ -81,7 +81,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-green-100">
-      
+
       {/* --- Header --- */}
       <header className="bg-white/90 backdrop-blur-md border-b sticky top-0 z-50 shadow-sm px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -94,10 +94,10 @@ const App = () => {
 
       {/* --- Main Content --- */}
       <main className="max-w-7xl mx-auto px-6 py-10">
-        
+
         {/* Product Hero Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white p-8 md:p-12 rounded-[40px] shadow-sm border border-gray-100">
-          
+
           {/* Gallery Switcher */}
           <div className="space-y-6">
             <div className="aspect-square bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 shadow-inner">
@@ -105,8 +105,8 @@ const App = () => {
             </div>
             <div className="grid grid-cols-6 gap-3">
               {allImages.map((img, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   onClick={() => setMainImage(img)}
                   className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${mainImage === img ? 'border-green-500 scale-95 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
@@ -118,16 +118,16 @@ const App = () => {
 
           {/* Product Details & Pricing */}
           <div className="flex flex-col justify-center">
-             <div className="flex items-center gap-2 mb-4">
-               <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Limited Offer</span>
-               <span className="text-gray-400 text-xs font-bold uppercase tracking-widest flex items-center gap-1"><Award size={14}/> Top Quality</span>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Limited Offer</span>
+              <span className="text-gray-400 text-xs font-bold uppercase tracking-widest flex items-center gap-1"><Award size={14} /> Top Quality</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">Premium Silicone Kitchen Utensil Set</h1>
-            
+
             <div className="mt-8 flex items-baseline gap-4">
-              <span className="text-6xl font-black text-green-700">৳899</span>
-              <span className="text-2xl text-gray-400 line-through font-medium">৳1,399</span>
+              <span className="text-6xl font-black text-green-700">৳1299</span>
+              <span className="text-2xl text-gray-400 line-through font-medium">৳1,999</span>
             </div>
 
             <p className="mt-6 text-gray-600 text-lg leading-relaxed">
@@ -137,7 +137,7 @@ const App = () => {
             <button
               onClick={() => setIsModalOpen(true)}
               className="mt-10 w-full bg-green-600 text-white py-6 rounded-2xl font-black text-xl hover:bg-green-700 transition shadow-2xl active:scale-95 uppercase tracking-widest">
-              Order Now - ৳899
+              Order Now - 1299
             </button>
           </div>
         </div>
@@ -168,28 +168,28 @@ const App = () => {
                   </ul>
                 </div>
                 <div className="bg-green-50 p-8 rounded-3xl border border-green-100">
-                   <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2"><Flame size={20}/> HEAT PROOF</h4>
-                   <p className="text-green-700 text-sm">Safe for high-heat cooking up to 230°C. Durable and long-lasting material that won't melt.</p>
+                  <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2"><Flame size={20} /> HEAT PROOF</h4>
+                  <p className="text-green-700 text-sm">Safe for high-heat cooking up to 230°C. Durable and long-lasting material that won't melt.</p>
                 </div>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                 <div className="p-4 bg-gray-50 rounded-2xl border">
-                    <p className="text-gray-400 text-xs font-bold uppercase">Pieces</p>
-                    <p className="font-bold">12 Pcs Set</p>
-                 </div>
-                 <div className="p-4 bg-gray-50 rounded-2xl border">
-                    <p className="text-gray-400 text-xs font-bold uppercase">Material</p>
-                    <p className="font-bold">Silicone/Wood</p>
-                 </div>
-                 <div className="p-4 bg-gray-50 rounded-2xl border">
-                    <p className="text-gray-400 text-xs font-bold uppercase">Warranty</p>
-                    <p className="font-bold">7 Days Replacement</p>
-                 </div>
-                 <div className="p-4 bg-gray-50 rounded-2xl border">
-                    <p className="text-gray-400 text-xs font-bold uppercase">Delivery</p>
-                    <p className="font-bold">Free Nationwide</p>
-                 </div>
+                <div className="p-4 bg-gray-50 rounded-2xl border">
+                  <p className="text-gray-400 text-xs font-bold uppercase">Pieces</p>
+                  <p className="font-bold">12 Pcs Set</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-2xl border">
+                  <p className="text-gray-400 text-xs font-bold uppercase">Material</p>
+                  <p className="font-bold">Silicone/Wood</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-2xl border">
+                  <p className="text-gray-400 text-xs font-bold uppercase">Warranty</p>
+                  <p className="font-bold">7 Days Replacement</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-2xl border">
+                  <p className="text-gray-400 text-xs font-bold uppercase">Delivery</p>
+                  <p className="font-bold">100tk</p>
+                </div>
               </div>
             )}
           </div>
@@ -208,15 +208,15 @@ const App = () => {
             <p className="text-gray-500 mb-8 font-medium italic">Your kitchen upgrade is just a step away!</p>
 
             <form onSubmit={handleOrder} className="space-y-5">
-              
+
               {/* Color Plate Selection */}
               <div>
                 <label className="text-xs font-black text-gray-400 mb-3 block uppercase tracking-widest">Select Your Color: <span className="text-green-600">{formData.selectedColor}</span></label>
                 <div className="flex gap-4">
                   {colors.map((color) => (
-                    <div 
+                    <div
                       key={color.name}
-                      onClick={() => setFormData({...formData, selectedColor: color.name})}
+                      onClick={() => setFormData({ ...formData, selectedColor: color.name })}
                       className={`w-12 h-12 rounded-full cursor-pointer border-4 transition-all ${color.class} ${formData.selectedColor === color.name ? 'border-green-600 scale-110 shadow-lg' : 'border-white shadow-sm hover:scale-105'}`}
                       title={color.name}
                     />
@@ -264,11 +264,11 @@ const App = () => {
 
               {/* Order Summary */}
               <div className="bg-green-50 p-5 rounded-2xl border border-green-100">
-                 <p className="flex justify-between font-black text-green-800 text-xl">
-                    <span>Grand Total:</span>
-                    <span>৳899.00</span>
-                 </p>
-                 <p className="text-xs text-green-600 mt-1 font-bold italic tracking-wide uppercase flex items-center gap-1"><Package size={14}/> Free Delivery Enabled</p>
+                <p className="flex justify-between font-black text-green-800 text-xl">
+                  <span>Grand Total:</span>
+                  <span>৳1399.00</span>
+                </p>
+                <p className="text-xs text-green-600 mt-1 font-bold italic tracking-wide uppercase flex items-center gap-1"><Package size={14} /> Delivery fee 100tk</p>
               </div>
 
               <button
